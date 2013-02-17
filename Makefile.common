@@ -1,0 +1,5 @@
+CXX=i686-mingw32-g++
+WINDRES=i686-mingw32-windres
+MAKE=make
+CP=cp
+
