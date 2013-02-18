@@ -125,9 +125,9 @@ LRESULT CALLBACK HotkeyWndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 UINT GetModifiers(BYTE* state)
 {
 	return
-		(state[VK_CONTROL] ? MOD_CONTROL : 0) | 
-		(state[VK_MENU] ? MOD_ALT : 0) |
-		(state[VK_SHIFT] ? MOD_SHIFT : 0) |
-		(state[VK_LWIN] || state[VK_RWIN] ? MOD_WIN : 0);
+		(state[VK_CONTROL]&0x80 ? MOD_CONTROL : 0) |
+		(state[VK_MENU]&0x80 ? MOD_ALT : 0) |
+		(state[VK_SHIFT]&0x80 ? MOD_SHIFT : 0) |
+		(state[VK_LWIN]&0x80 || state[VK_RWIN]&0x80 ? MOD_WIN : 0);
 }
 
