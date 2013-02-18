@@ -20,6 +20,7 @@ class MainWindow
 	LRESULT CALLBACK RealWndProc(UINT, WPARAM, LPARAM);
 	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 	const char* ConfigFilename();
+	const char* ConfigExecutableFilename();
 	void LoadPreference();
 	HWND hWnd;
 	ATOM escape_hotkey;

@@ -1,8 +1,9 @@
 #include "MainWindow.h"
 #include <stdio.h>
 #include <commctrl.h>
+#include "../config/config.h"
 
-const char MainWindow::classname[] = "MainWindow";
+const char MainWindow::classname[] = "multiple-cursors-MainWindow";
 
 void MainWindow::RegisterWindowClass()
 {
@@ -62,6 +63,19 @@ const char* MainWindow::ConfigFilename()
 	return config_filename;
 }
 
+const char* MainWindow::ConfigExecutableFilename()
+{
+	static char config_filename[MAX_PATH+1];
+	if (config_filename[0] == 0)
+	{
+		char* dirlast;
+		GetModuleFileName(NULL, config_filename, MAX_PATH+1);
+		dirlast = strrchr(config_filename, '\\');
+		strncpy(dirlast+1, "multiple-cursors-config.exe", (MAX_PATH+1)-(dirlast+1-config_filename));
+	}
+	return config_filename;
+}
+
 void MainWindow::LoadPreference()
 {
 	pref.Load(ConfigFilename());
@@ -117,10 +131,20 @@ LRESULT CALLBACK MainWindow::RealWndProc(UINT msg, WPARAM wp, LPARAM lp)
 		case WM_COMMAND:
 			switch (LOWORD(wp))
 			{
+				case IDM_CONFIG:
+					WinExec(ConfigExecutableFilename(), SW_SHOWNORMAL);
+					break;
 				case IDM_QUIT:
 					SendMessage(hWnd, WM_CLOSE, 0, 0);
 					break;
 			}
+			break;
+		case WM_RELOAD_CONFIG:
+			pref.Load(ConfigFilename());
+			UnregisterHotKey(hWnd, next_hotkey);
+			UnregisterHotKey(hWnd, escape_hotkey);
+			RegisterHotKey(hWnd, next_hotkey, pref.GetHotkeyNext().modifiers, pref.GetHotkeyNext().vkeys);
+			RegisterHotKey(hWnd, escape_hotkey, pref.GetHotkeyQuit().modifiers, pref.GetHotkeyQuit().vkeys);
 			break;
 		case WM_DESTROY:
 			PostQuitMessage(0);
@@ -191,6 +215,10 @@ void MainWindow::Create()
 		mi.cbSize = sizeof(mi);
 		mi.fMask = MIIM_STRING | MIIM_FTYPE | MIIM_ID;
 		mi.fType = MFT_STRING;
+
+		mi.wID = IDM_CONFIG;
+		mi.dwTypeData = "Config(&C)";
+		InsertMenuItem(hTrayMenu, 0, FALSE, &mi);
 
 		mi.wID = IDM_QUIT;
 		mi.dwTypeData = "Quit(&Q)";
